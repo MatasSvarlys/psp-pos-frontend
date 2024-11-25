@@ -1,24 +1,30 @@
-import logo from './logo.svg';
+import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import './App.css';
+import Navbar from './Common-elements/js/Navbar';
+import {AuthPage, WelcomePage, OrdersPage, ReservationsPage, UsersPage, BusinessesPage} from './Pages/js';
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  //TODO: Add persistence so that refreshing the page doesnt log you out
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      {!isLoggedIn && 
+        <AuthPage setIsLoggedIn={setIsLoggedIn}/>
+      }
+      {isLoggedIn && 
+      <>
+        <Navbar />
+        <Routes>
+            <Route path="/" element={<WelcomePage/>}></Route>
+            <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/reservations" element={<ReservationsPage />} />
+            <Route path="/users" element={<UsersPage />} />
+            <Route path="/businesses" element={<BusinessesPage />} />
+        </Routes>
+      </>
+      }
+    </Router>
   );
 }
 

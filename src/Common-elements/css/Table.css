@@ -1,0 +1,35 @@
+
+.table-container{
+    background-color: pink;
+    height: 70%;
+    margin: 30px;
+    padding: 10px;
+    justify-items: center;
+  }
+  
+  .table-container table{
+    border-collapse: collapse;
+    margin: 15px 0;
+  }
+  
+  .table-container th, .table-container td{
+    display: flexbox;
+    justify-content: center;
+    height: 1.5rem;
+    padding: 0 5px;
+  }
+  
+  .table-container thead{
+    background-color: gray;
+  }
+  
+  
+  .table-container tbody tr:hover{
+    transition: 0.2s;
+    background-color: yellow;
+    cursor: default;
+  }
+
+  .table-container tbody a{
+    cursor: pointer;
+  }

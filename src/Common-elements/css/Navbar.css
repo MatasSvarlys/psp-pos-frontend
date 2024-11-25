@@ -1,0 +1,19 @@
+.navbar{
+    height: 50px;
+    background: #EE5B47;
+    display: flex;
+      box-shadow: 3px 3px 20px 5px rgba(0,0,0,0.1);
+  }
+  .nav-link{
+    padding: 0px 10px;
+    align-content: center;
+    text-align: center;
+    text-decoration: none;
+    color: black;
+  }
+
+  .nav-link:hover{
+    background: #D44835;
+    transition: 0.3s;
+    cursor: pointer;
+  }
