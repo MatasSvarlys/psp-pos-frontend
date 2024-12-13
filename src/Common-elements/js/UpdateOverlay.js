@@ -4,9 +4,7 @@ export default function UpdateOverlay(selectedRow){
     }
     var row = JSON.stringify(selectedRow, null, 2);
     return(
-        //TODO: add close button logic
-        //TODO: add update (PUT) request logic
-        //TODO: make it into an overlay
+        
         <div className="overlay">
             <h3>Update Row</h3>
             <div>

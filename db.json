@@ -1,20 +1,48 @@
 {
   "users": [
     {
-      "id": "1",
-      "name": "John Doe",
-      "email": "john.doe@example.com",
-      "role": "Admin",
-      "password": "password123",
-      "businessId": "biz123"
+      "id": "0df9",
+      "name": "Dummy User",
+      "email": "dummy@example.com",
+      "role": "user"
     },
     {
-      "id": "2",
-      "name": "Jane Smith",
-      "email": "jane.smith@example.com",
-      "role": "User",
-      "password": "password456",
-      "businessId": "biz456"
+      "name": "Dummy User",
+      "email": "dummy@example.com",
+      "role": "userasd",
+      "id": "5d09"
+    },
+    {
+      "id": "42b1",
+      "name": "asd",
+      "email": "asd@asd",
+      "role": "asd",
+      "password": "a",
+      "businessId": "asdas"
+    },
+    {
+      "id": "1191",
+      "name": "Dummy User",
+      "email": "dummy@example.com",
+      "role": "user"
+    },
+    {
+      "id": "6926",
+      "name": "Dummy User",
+      "email": "dummy@example.com",
+      "role": "user"
+    },
+    {
+      "id": "9408",
+      "name": "Dummy User",
+      "email": "dummy@example.com",
+      "role": "user"
+    },
+    {
+      "name": "Dummy User",
+      "email": "dummy@example.comasd",
+      "role": "user",
+      "id": "5b82"
     }
   ]
 }

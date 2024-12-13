@@ -10,8 +10,6 @@ const CreateForm = ({ headers, requiredFields = [], onSubmit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    //TODO: look into making field valdation using input "required" function instead
     const missingFields = requiredFields.filter(
       (field) => !formData[field.toLowerCase()]
     );

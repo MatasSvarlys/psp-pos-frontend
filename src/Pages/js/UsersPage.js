@@ -1,30 +1,33 @@
 import { useEffect, useState } from "react";
-import submitData from "./useSubmitData";
-import fetchDataFromApi from "./useFetchData";
+import submitData from "../../api/postLogic";
+import fetchDataFromApi from "../../api/fetchLogic";
+import deleteData from "../../api/deleteLogic";
+import putData from "../../api/putLogic";
 
+//TODO: split it up into different objects if possible
 export default function UsersPage() {
-    // const { data, error, loading, refresh } = useFetch("users");
-    // const { response, submitError, loading: loadingSubmit, confirmSubmit } = useSubmitData({ from: "users" });
-    const [displayData, setDisplayData] = useState([]); 
-    const [waitForLoad, setWaitForLoad] = useState(false);
-    
-    useEffect(() => {
-      const fetchUsers = async () => {
-        setWaitForLoad(true);
-        try {
-          const resp = await fetchDataFromApi("users"); // Await the resolution of the promise
-          setDisplayData(resp || []); // Ensure displayData is always an array
-          console.log(resp);
-        } catch (error) {
-          console.error("Error fetching users:", error);
-          setDisplayData([]); // Fallback to an empty array in case of error
-        } finally {
-          setWaitForLoad(false); // Ensure loading state is updated
-        }
-      };
-    
-      fetchUsers();
-    }, []);
+  const [displayData, setDisplayData] = useState([]); 
+  const [waitForLoad, setWaitForLoad] = useState(false);
+  //i could have 2 of these for editing from the whole list and editing from the fetched by id but i cant be bothered
+  const [editingUserId, setEditingUserId] = useState(null);
+  const [userFromID, setUserFromID] = useState(null);
+
+  //initial load
+  //i know there are ways to cash this so it doesnt refetch or reload, but i wanna learn the og way so 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setWaitForLoad(true);
+      try {
+        const resp = await fetchDataFromApi("users");
+        setDisplayData(resp || []);
+        console.log(resp);
+      } finally {
+        setWaitForLoad(false);
+      }
+    };
+  
+    fetchUsers();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,15 +36,46 @@ export default function UsersPage() {
     const payload = Object.fromEntries(formData);
   
     const response = await submitData("users", payload);
-    handleResponse(response);
+    setDisplayData((prev) => [...prev, response]);
   };
   
-  const handleResponse = (response) => {
-    if (response) {
-      setDisplayData((prev) => [...prev, response]); // Update state with the new response
-    } else {
-      console.error("Failed to submit data or received an invalid response.");
+  const handleGetById = async (e) => {
+    e.preventDefault();
+  
+    const formData = new FormData(e.target);
+    const id = Object.fromEntries(formData).id;
+    console.log("id: "+id);
+    const response = await fetchDataFromApi("users", id);
+    console.log(response);
+    setUserFromID(response);
+  };
+
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm("Are you sure you want to delete this user?");
+    if (confirmed) {
+      const response = await deleteData("users", id);
+      console.log("User deleted successfully:", response.id);
+      setDisplayData((prevData) => prevData.filter((user) => user.id !== id));
     }
+  };
+  
+  const handleEdit = (id) => {
+    setEditingUserId(id);
+  };
+
+  const handleSave = async (e, id) => {
+    e.preventDefault();
+  
+    const formData = new FormData(e.target);
+    const updatedData = Object.fromEntries(formData);
+  
+    const response = await putData("users", updatedData, id);
+    
+    setDisplayData((prev) =>
+      prev.map((user) => (user.id === id ? response : user))
+    );
+
+    setEditingUserId(null);
   };
   
   const handleDummySubmit = async () => {
@@ -49,10 +83,9 @@ export default function UsersPage() {
       name: 'Dummy User',
       email: 'dummy@example.com',
       role: 'user',
-      // Add other necessary fields 
     };
     const response = await submitData("users", dummyData); 
-    handleResponse(response);
+    setDisplayData((prev) => [...prev, response]);
   };
   
   return (
@@ -61,12 +94,27 @@ export default function UsersPage() {
 
       <h1>All Users</h1>
       <section>
-          {waitForLoad ? (<p>hold up</p>) : ( 
+          {waitForLoad ? (<p>fetching data...</p>) : ( 
               <ul>
               {
                 displayData.map((user) => (
-                    <li key={user.id}>
-                    {user.name}, {user.email}, {user.role}
+                  <li key={user.id}>
+                    {editingUserId === user.id ? (
+                      <form onSubmit={(e) => handleSave(e, user.id)}>
+                        <input type="text" defaultValue={user.name} name="name" placeholder="Name" />
+                        <input type="email" defaultValue={user.email} name="email" placeholder="Email" />
+                        <input type="text" defaultValue={user.role} name="role" placeholder="Role" />
+                        
+                        <button type="submit">Save</button>
+                        <button type="button" onClick={() => setEditingUserId(null)}>Cancel</button>
+                      </form>
+                    ) : (
+                      <>
+                        {user.name}, {user.email}, {user.role}
+                        <button onClick={() => handleEdit(user.id)}>Update</button>
+                        <button onClick={() => handleDelete(user.id)}>Delete</button>
+                      </>
+                    )}
                   </li>
                 ))}
             </ul>
@@ -76,44 +124,49 @@ export default function UsersPage() {
       <h1>Add User</h1>
       <section>
         <form onSubmit={handleSubmit}>
-          <label>Name:</label>
-            <input
-              type="text"
-              name="name"
-              required
-            />
-          <br />
-          <label>Email:</label>
-            <input
-              type="email"
-              name="email"
-              required
-            />
-          <br />
-          <label>Role:</label>
-            <input
-              type="text"
-              name="role"
-              required
-            />
-          <br />
-          <label>Password:</label>
-            <input
-              type="password"
-              name="password"
-              required
-            />
-          <br />
-          <label>Business ID:</label>
-            <input
-              type="text"
-              name="businessId"
-              required
-              />
-            <input type="submit" value="Submit" />
-          <br />
+          <label>Name: <input type="text" name="name" required /></label>
+          <label>Email: <input type="email" name="email" required /></label>
+          <label>Role: <input type="text" name="role" required /></label>
+          <label>Password: <input type="password" name="password" required /></label>
+          <label>Business ID: <input type="text" name="businessId" required /></label>
+          <input type="submit" value="Submit" />
         </form>
       </section>
+
+      <h1>Get user with id</h1>
+      <section>
+        <form onSubmit={handleGetById}>
+          <label>
+            ID: <input type="text" name="id" required />
+          </label>
+          <input type="submit" value="Submit" />
+        </form>
+          {userFromID ? (
+            Object.keys(userFromID).length > 0 ? (
+              editingUserId === userFromID.id ? (
+                <form onSubmit={(e) => handleSave(e, userFromID.id)} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <label>Name: <input type="text" defaultValue={userFromID.name} name="name" placeholder="Name" required /></label>
+                  <label>Email: <input type="email" defaultValue={userFromID.email} name="email" placeholder="Email" required /></label>
+                  <label>Role: <input type="text" defaultValue={userFromID.role} name="role" placeholder="Role" required /></label>
+
+                  <button type="submit">Save</button>
+                  <button type="button" onClick={() => setEditingUserId(null)}>Cancel</button>
+                </form>
+              ) : (
+                <>
+                  <p>{userFromID.name}, {userFromID.email}, {userFromID.role}</p>
+                  <button onClick={() => handleEdit(userFromID.id)}>Update</button>
+                  <button onClick={() => handleDelete(userFromID.id)}>Delete</button>
+                </>
+              )
+            ) : (
+              <p>User not found.</p> //show when userFromID is an empty object
+            )
+          ) : (
+            <></> //show nothing when userFromID is null or undefined
+          )}
+      </section>
+
     </>
   );
 }
