@@ -6,9 +6,13 @@ const putData = async (apiName, data, id) => {
   const endpoint = `${BACKEND_LINK}/${apiName}/${id}`;
 
   try {
+    const token = localStorage.getItem("authToken");
     const res = await fetch(endpoint, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
       body: JSON.stringify(data),
     });
 

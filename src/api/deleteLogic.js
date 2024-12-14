@@ -6,9 +6,13 @@ const deleteData = async (apiName, id) => {
   const endpoint = `${BACKEND_LINK}/${apiName}/${id}`;
 
   try {
+    const token = localStorage.getItem("authToken");
     const res = await fetch(endpoint, {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
     });
 
     if (!res.ok) {

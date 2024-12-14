@@ -34,9 +34,14 @@ export default function UsersPage() {
   
     const formData = new FormData(e.target);
     const payload = Object.fromEntries(formData);
-  
     const response = await submitData("users", payload);
+    
+    if (!response || response.status >= 400) {
+      console.error("Invalid request parameters: ", response);
+      return;
+    }
     setDisplayData((prev) => [...prev, response]);
+    
   };
   
   const handleGetById = async (e) => {
@@ -46,7 +51,11 @@ export default function UsersPage() {
     const id = Object.fromEntries(formData).id;
     console.log("id: "+id);
     const response = await fetchDataFromApi("users", id);
-    console.log(response);
+    if (!response || response.status >= 400) {
+      console.error("Invalid request parameters: ", response);
+      setEditingUserId(null);
+      return;
+    }
     setUserFromID(response);
   };
 
@@ -55,6 +64,11 @@ export default function UsersPage() {
     if (confirmed) {
       const response = await deleteData("users", id);
       console.log("User deleted successfully:", response.id);
+      if (!response || response.status >= 400) {
+        console.error("Invalid request parameters: ", response);
+        setEditingUserId(null);
+        return;
+      }
       setDisplayData((prevData) => prevData.filter((user) => user.id !== id));
     }
   };
@@ -68,9 +82,21 @@ export default function UsersPage() {
   
     const formData = new FormData(e.target);
     const updatedData = Object.fromEntries(formData);
+
+    const previousUserData = displayData.find((user) => user.id === id);
   
-    const response = await putData("users", updatedData, id);
-    
+    const mergedData = { 
+      ...previousUserData, 
+      ...updatedData
+    };
+
+    const response = await putData("users", mergedData, id);
+    //TODO: maybe theres a way to shorten this cus it repeats everywhere
+    if (!response || response.status >= 400) {
+      console.error("Invalid request parameters: ", response);
+      setEditingUserId(null);
+      return;
+    }
     setDisplayData((prev) =>
       prev.map((user) => (user.id === id ? response : user))
     );
@@ -82,9 +108,16 @@ export default function UsersPage() {
     const dummyData = {
       name: 'Dummy User',
       email: 'dummy@example.com',
-      role: 'user',
+      role: 'Employee',
+      businessId: '123e4567-e89b-12d3-a456-426614174001',
+      password: 'aaa',
     };
+    
     const response = await submitData("users", dummyData); 
+    if (!response || response.status >= 400) {
+      console.error("Invalid request parameters: ", response);
+      return;
+    }
     setDisplayData((prev) => [...prev, response]);
   };
   
@@ -104,6 +137,7 @@ export default function UsersPage() {
                         <input type="text" defaultValue={user.name} name="name" placeholder="Name" />
                         <input type="email" defaultValue={user.email} name="email" placeholder="Email" />
                         <input type="text" defaultValue={user.role} name="role" placeholder="Role" />
+                        <input type="text" name="password" placeholder="Password" />
                         
                         <button type="submit">Save</button>
                         <button type="button" onClick={() => setEditingUserId(null)}>Cancel</button>

@@ -1,5 +1,6 @@
 import "../css/AuthPage.css";
 import React, { useState } from "react";
+import submitData from "../../api/postLogic";
 
 function AuthPage({ setIsLoggedIn }){
   const [isLoginDisplay, setIsLoginDisplay] = useState(true);
@@ -8,32 +9,30 @@ function AuthPage({ setIsLoggedIn }){
     setIsLoginDisplay(!isLoginDisplay);
   };
 
-  const handleLogin = () => {
-    setIsLoggedIn(true);
+  const handleLogin = async (e) => {
+    e.preventDefault();
+  
+    const formData = new FormData(e.target);
+    const payload = Object.fromEntries(formData);
+    console.log("sent: "+JSON.stringify(payload));
+    const response = await submitData("auth/generate-token", payload);
+    console.log("recieved"+JSON.stringify(response));
+    if(response.token){
+      localStorage.setItem("authToken", response.token);
+      localStorage.setItem("authTokenExpiration", response.expiration);  
+      setIsLoggedIn(true);
+    }
   };
 
   return(
   <div className="container">
       <div className="form-box">
-        {!isLoginDisplay &&
-          <form class="register-form">
-            <h1>Register</h1>
-            <input type="text" placeholder="name"/>
-            <input type="password" placeholder="password"/>
-            <input type="text" placeholder="email address"/>
-            <button onClick={handleLogin}>create</button>
-            <p className="message">Already registered? <a onClick={handleDisplay}>Sign In</a></p>
-          </form>
-        }
-        {isLoginDisplay &&
-          <form className="login-form">
-            <h1>Login</h1>
-            <input type="text" placeholder="username"/>
-            <input type="password" placeholder="password"/>
-            <button onClick={handleLogin}>login</button>
-            <p className="message">Not registered? <a onClick={handleDisplay}>Create an account</a></p>
-          </form>
-        }
+        <form className="login-form" onSubmit={handleLogin}>
+          <h1>Login</h1>
+          <input type="email" name="email" placeholder="username"/>
+          <input type="password" name="password" placeholder="password"/>
+          <input type="submit" value="Login" />
+        </form>
       </div>
     </div>
   );
