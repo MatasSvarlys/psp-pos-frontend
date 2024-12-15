@@ -19,7 +19,8 @@ function AuthPage({ setIsLoggedIn }){
     console.log("recieved"+JSON.stringify(response));
     if(response.token){
       localStorage.setItem("authToken", response.token);
-      localStorage.setItem("authTokenExpiration", response.expiration);  
+      localStorage.setItem("authTokenExpiration", response.expiration);
+      localStorage.setItem("BusinessId", response.businessId);  
       setIsLoggedIn(true);
     }
   };

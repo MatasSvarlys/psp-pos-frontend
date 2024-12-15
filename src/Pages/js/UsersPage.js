@@ -1,32 +1,15 @@
 import { useEffect, useState } from "react";
-import submitData from "../../api/postLogic";
-import fetchDataFromApi from "../../api/fetchLogic";
-import deleteData from "../../api/deleteLogic";
-import putData from "../../api/putLogic";
+import useCrud from "../../api/useCrud";
 
 //TODO: split it up into different objects if possible
 export default function UsersPage() {
-  const [displayData, setDisplayData] = useState([]); 
-  const [waitForLoad, setWaitForLoad] = useState(false);
-  //i could have 2 of these for editing from the whole list and editing from the fetched by id but i cant be bothered
-  const [editingUserId, setEditingUserId] = useState(null);
+  const { data: users, loading, fetchItems, fetchItemById, createItem, deleteItem, updateItem, editingID, setEditingID } = useCrud("users");
+  
   const [userFromID, setUserFromID] = useState(null);
 
   //initial load
-  //i know there are ways to cash this so it doesnt refetch or reload, but i wanna learn the og way so 
   useEffect(() => {
-    const fetchUsers = async () => {
-      setWaitForLoad(true);
-      try {
-        const resp = await fetchDataFromApi("users");
-        setDisplayData(resp || []);
-        console.log(resp);
-      } finally {
-        setWaitForLoad(false);
-      }
-    };
-  
-    fetchUsers();
+    fetchItems();
   }, []);
 
   const handleSubmit = async (e) => {
@@ -34,14 +17,7 @@ export default function UsersPage() {
   
     const formData = new FormData(e.target);
     const payload = Object.fromEntries(formData);
-    const response = await submitData("users", payload);
-    
-    if (!response || response.status >= 400) {
-      console.error("Invalid request parameters: ", response);
-      return;
-    }
-    setDisplayData((prev) => [...prev, response]);
-    
+    const response = await createItem(payload);
   };
   
   const handleGetById = async (e) => {
@@ -49,32 +25,20 @@ export default function UsersPage() {
   
     const formData = new FormData(e.target);
     const id = Object.fromEntries(formData).id;
-    console.log("id: "+id);
-    const response = await fetchDataFromApi("users", id);
-    if (!response || response.status >= 400) {
-      console.error("Invalid request parameters: ", response);
-      setEditingUserId(null);
-      return;
-    }
+
+    const response = await fetchItemById(id);
     setUserFromID(response);
   };
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this user?");
-    if (confirmed) {
-      const response = await deleteData("users", id);
-      console.log("User deleted successfully:", response.id);
-      if (!response || response.status >= 400) {
-        console.error("Invalid request parameters: ", response);
-        setEditingUserId(null);
-        return;
-      }
-      setDisplayData((prevData) => prevData.filter((user) => user.id !== id));
+    await deleteItem(id);
+    if (userFromID.id === id){
+      setUserFromID(null);
     }
   };
   
   const handleEdit = (id) => {
-    setEditingUserId(id);
+    setEditingID(id);
   };
 
   const handleSave = async (e, id) => {
@@ -83,25 +47,10 @@ export default function UsersPage() {
     const formData = new FormData(e.target);
     const updatedData = Object.fromEntries(formData);
 
-    const previousUserData = displayData.find((user) => user.id === id);
-  
-    const mergedData = { 
-      ...previousUserData, 
-      ...updatedData
-    };
+    const previousUserData = users.find((user) => user.id === id);
+    const previousData = { businessId: previousUserData.businessId };
 
-    const response = await putData("users", mergedData, id);
-    //TODO: maybe theres a way to shorten this cus it repeats everywhere
-    if (!response || response.status >= 400) {
-      console.error("Invalid request parameters: ", response);
-      setEditingUserId(null);
-      return;
-    }
-    setDisplayData((prev) =>
-      prev.map((user) => (user.id === id ? response : user))
-    );
-
-    setEditingUserId(null);
+    const response = await updateItem(id, updatedData, previousData);
   };
   
   const handleDummySubmit = async () => {
@@ -113,12 +62,7 @@ export default function UsersPage() {
       password: 'aaa',
     };
     
-    const response = await submitData("users", dummyData); 
-    if (!response || response.status >= 400) {
-      console.error("Invalid request parameters: ", response);
-      return;
-    }
-    setDisplayData((prev) => [...prev, response]);
+    const response = await createItem(dummyData); 
   };
   
   return (
@@ -127,20 +71,19 @@ export default function UsersPage() {
 
       <h1>All Users</h1>
       <section>
-          {waitForLoad ? (<p>fetching data...</p>) : ( 
+          {loading ? (<p>fetching data...</p>) : ( 
               <ul>
               {
-                displayData.map((user) => (
+                users.map((user) => (
                   <li key={user.id}>
-                    {editingUserId === user.id ? (
+                    {editingID === user.id ? (
                       <form onSubmit={(e) => handleSave(e, user.id)}>
                         <input type="text" defaultValue={user.name} name="name" placeholder="Name" />
-                        <input type="email" defaultValue={user.email} name="email" placeholder="Email" />
+                        {user.email}
                         <input type="text" defaultValue={user.role} name="role" placeholder="Role" />
-                        <input type="text" name="password" placeholder="Password" />
                         
                         <button type="submit">Save</button>
-                        <button type="button" onClick={() => setEditingUserId(null)}>Cancel</button>
+                        <button type="button" onClick={() => setEditingID(null)}>Cancel</button>
                       </form>
                     ) : (
                       <>
@@ -176,15 +119,17 @@ export default function UsersPage() {
           <input type="submit" value="Submit" />
         </form>
           {userFromID ? (
-            Object.keys(userFromID).length > 0 ? (
-              editingUserId === userFromID.id ? (
+            userFromID.status >= 400 ? (
+              <p>User not found.</p> //show when userFromID is an empty object
+            ) : (
+              editingID === userFromID.id ? (
                 <form onSubmit={(e) => handleSave(e, userFromID.id)} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <label>Name: <input type="text" defaultValue={userFromID.name} name="name" placeholder="Name" required /></label>
-                  <label>Email: <input type="email" defaultValue={userFromID.email} name="email" placeholder="Email" required /></label>
+                  {userFromID.email}
                   <label>Role: <input type="text" defaultValue={userFromID.role} name="role" placeholder="Role" required /></label>
 
                   <button type="submit">Save</button>
-                  <button type="button" onClick={() => setEditingUserId(null)}>Cancel</button>
+                  <button type="button" onClick={() => setEditingID(null)}>Cancel</button>
                 </form>
               ) : (
                 <>
@@ -193,8 +138,6 @@ export default function UsersPage() {
                   <button onClick={() => handleDelete(userFromID.id)}>Delete</button>
                 </>
               )
-            ) : (
-              <p>User not found.</p> //show when userFromID is an empty object
             )
           ) : (
             <></> //show nothing when userFromID is null or undefined

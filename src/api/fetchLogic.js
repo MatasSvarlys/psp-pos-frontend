@@ -3,9 +3,14 @@ import { BACKEND_LINK } from "../lib/consts";
 const fetchDataFromApi = async (urlEnd, id=null) => {
   try {
     const token = localStorage.getItem("authToken");
+    const businessId = localStorage.getItem("BusinessId");
+
     const fetchLink = id ? `${BACKEND_LINK}/${urlEnd}/${id}` : `${BACKEND_LINK}/${urlEnd}`;
     const response = await fetch(fetchLink, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        BusinessId: businessId
+      }
     });
     const data = await response.json();
 
