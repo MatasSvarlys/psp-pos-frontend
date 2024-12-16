@@ -2,8 +2,9 @@ import { BACKEND_LINK } from "../lib/consts";
 
 const fetchDataFromApi = async (urlEnd, id=null) => {
   try {
-    const token = localStorage.getItem("authToken");
-    const businessId = localStorage.getItem("BusinessId");
+    //TODO: move the token and businessID out to useCrud so it doesnt repeat in every smaller one
+    const token = sessionStorage.getItem("authToken");
+    const businessId = sessionStorage.getItem("BusinessId");
 
     const fetchLink = id ? `${BACKEND_LINK}/${urlEnd}/${id}` : `${BACKEND_LINK}/${urlEnd}`;
     const response = await fetch(fetchLink, {

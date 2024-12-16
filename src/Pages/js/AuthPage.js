@@ -1,14 +1,16 @@
 import "../css/AuthPage.css";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import submitData from "../../api/postLogic";
 
 function AuthPage({ setIsLoggedIn }){
   const [isLoginDisplay, setIsLoginDisplay] = useState(true);
   
-  const handleDisplay = () => {
-    setIsLoginDisplay(!isLoginDisplay);
-  };
-
+  useEffect(() => {
+    if(sessionStorage.getItem("authToken")){
+      setIsLoggedIn(true);
+    }
+  }, []);
+  
   const handleLogin = async (e) => {
     e.preventDefault();
   
@@ -17,10 +19,12 @@ function AuthPage({ setIsLoggedIn }){
     console.log("sent: "+JSON.stringify(payload));
     const response = await submitData("auth/generate-token", payload);
     console.log("recieved"+JSON.stringify(response));
+
+
     if(response.token){
-      localStorage.setItem("authToken", response.token);
-      localStorage.setItem("authTokenExpiration", response.expiration);
-      localStorage.setItem("BusinessId", response.businessId);  
+      sessionStorage.setItem("authToken", response.token);
+      sessionStorage.setItem("authTokenExpiration", response.expiration);
+      sessionStorage.setItem("BusinessId", response.businessId);  
       setIsLoggedIn(true);
     }
   };

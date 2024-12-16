@@ -6,8 +6,8 @@ const putData = async (apiName, data, id) => {
   const endpoint = `${BACKEND_LINK}/${apiName}/${id}`;
 
   try {
-    const token = localStorage.getItem("authToken");
-    const businessId = localStorage.getItem("BusinessId");
+    const token = sessionStorage.getItem("authToken");
+    const businessId = sessionStorage.getItem("BusinessId");
     
     const res = await fetch(endpoint, {
       method: "PUT",

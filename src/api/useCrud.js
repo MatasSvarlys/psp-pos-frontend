@@ -7,7 +7,6 @@ import putData from "./putLogic.js"
 const useCrud = (entity) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [editingID, setEditingID] = useState(null);
 
   const createItem = async (payload) => {
     const response = await submitData(entity, payload);
@@ -31,7 +30,12 @@ const useCrud = (entity) => {
   };
 
   const fetchItemById = async (id) => {
-    return await fetchDataFromApi(entity, id);
+    const response = await fetchDataFromApi(entity, id);
+    if (!response || response.status >= 400) {
+      window.alert(JSON.stringify(response));
+      return;
+    }
+    return response;
   };
 
   const deleteItem = async (id) => {
@@ -39,10 +43,9 @@ const useCrud = (entity) => {
     if (confirmed) {
       const response = await deleteData(entity, id);
       if (!response || response.status >= 400) {
-          window.alert(JSON.stringify(response));
-          setEditingID(null);
-          return;
-        }
+        window.alert(JSON.stringify(response));
+        return;
+      }
       console.log(`${entity} deleted successfully:`, response.id);
       setData((prevData) => prevData.filter((user) => user.id !== id));
       
@@ -54,12 +57,10 @@ const useCrud = (entity) => {
     const response = await putData(entity, mergedData, id);
     if (!response || response.status >= 400) {
         window.alert(JSON.stringify(response));
-        setEditingID(null);
         return;
     }
     console.log(`${entity} updated successfully:`, response.id);
     setData((prev) => prev.map((item) => (item.id === id ? response : item)));
-    setEditingID(null);
     return response;
   };
 
@@ -72,8 +73,6 @@ const useCrud = (entity) => {
     fetchItemById,
     deleteItem,
     updateItem,
-    editingID,
-    setEditingID,
   };
 };
 

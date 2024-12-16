@@ -1,24 +1,45 @@
 import { useEffect, useState } from "react";
 import useCrud from "../../api/useCrud";
+import Table from "../../Common-elements/js/Table";
+import CreateForm from "../../Common-elements/js/CreateForm";
 
-//TODO: split it up into different objects if possible
+const ENTITY_NAME = "user";
+
+//thsese dont particularly need to be out here, but i think its good practice to have constants out of the export function
+const editableFields = [
+  { name: "name", type: "text" },
+  { name: "role", type: "select", options: ["Employee", "SuperAdmin", "BusinessOwner"] },
+  { name: "businessId", type: "text" },
+];
+
+const fields = [
+  { label: "Name", name: "name", type: "text", required: true },
+  { label: "Email", name: "email", type: "email", required: true },
+  { label: "Role", name: "role", type: "select", required: true, options: ["Employee", "SuperAdmin", "BusinessOwner"] },
+  { label: "Password", name: "password", type: "password", required: true },
+  { label: "Business ID", name: "businessId", type: "text", required: true },
+];
+
 export default function UsersPage() {
-  const { data: users, loading, fetchItems, fetchItemById, createItem, deleteItem, updateItem, editingID, setEditingID } = useCrud("users");
+  const { data: users, loading, fetchItems, fetchItemById, createItem, deleteItem, updateItem } = useCrud(ENTITY_NAME+"s");  
+  const [fromID, setfromID] = useState(null);
   
-  const [userFromID, setUserFromID] = useState(null);
-
   //initial load
   useEffect(() => {
     fetchItems();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
-    const formData = new FormData(e.target);
-    const payload = Object.fromEntries(formData);
-    const response = await createItem(payload);
-  };
+  //update fromID (if its not null) when users change
+  useEffect(() => {
+    if (fromID?.id) {
+      const updatedUser = users.find((user) => user.id === fromID.id);
+      if (updatedUser) {
+        setfromID(updatedUser);
+      } else {
+        setfromID(null);
+      }
+    }
+  }, [users, setfromID]);
   
   const handleGetById = async (e) => {
     e.preventDefault();
@@ -27,30 +48,7 @@ export default function UsersPage() {
     const id = Object.fromEntries(formData).id;
 
     const response = await fetchItemById(id);
-    setUserFromID(response);
-  };
-
-  const handleDelete = async (id) => {
-    await deleteItem(id);
-    if (userFromID.id === id){
-      setUserFromID(null);
-    }
-  };
-  
-  const handleEdit = (id) => {
-    setEditingID(id);
-  };
-
-  const handleSave = async (e, id) => {
-    e.preventDefault();
-  
-    const formData = new FormData(e.target);
-    const updatedData = Object.fromEntries(formData);
-
-    const previousUserData = users.find((user) => user.id === id);
-    const previousData = { businessId: previousUserData.businessId };
-
-    const response = await updateItem(id, updatedData, previousData);
+    setfromID(response);
   };
   
   const handleDummySubmit = async () => {
@@ -62,55 +60,30 @@ export default function UsersPage() {
       password: 'aaa',
     };
     
-    const response = await createItem(dummyData); 
+    await createItem(dummyData); 
   };
   
   return (
     <>
     <button onClick={handleDummySubmit}>Submit Dummy Data</button>
-
-      <h1>All Users</h1>
+      <h1>All {ENTITY_NAME}s</h1>
       <section>
           {loading ? (<p>fetching data...</p>) : ( 
-              <ul>
-              {
-                users.map((user) => (
-                  <li key={user.id}>
-                    {editingID === user.id ? (
-                      <form onSubmit={(e) => handleSave(e, user.id)}>
-                        <input type="text" defaultValue={user.name} name="name" placeholder="Name" />
-                        {user.email}
-                        <input type="text" defaultValue={user.role} name="role" placeholder="Role" />
-                        
-                        <button type="submit">Save</button>
-                        <button type="button" onClick={() => setEditingID(null)}>Cancel</button>
-                      </form>
-                    ) : (
-                      <>
-                        {user.name}, {user.email}, {user.role}
-                        <button onClick={() => handleEdit(user.id)}>Update</button>
-                        <button onClick={() => handleDelete(user.id)}>Delete</button>
-                      </>
-                    )}
-                  </li>
-                ))}
-            </ul>
+              <Table 
+                data={users}
+                editableFields={editableFields}
+                updateItem={updateItem}
+                deleteItem={deleteItem}
+              />
           )}
       </section>
 
-      <h1>Add User</h1>
+      <h1>Add {ENTITY_NAME}</h1>
       <section>
-        <form onSubmit={handleSubmit}>
-          <label>Name: <input type="text" name="name" required /></label>
-          <label>Email: <input type="email" name="email" required /></label>
-          <label>Role: <input type="text" name="role" required /></label>
-          <label>Password: <input type="password" name="password" required /></label>
-          <label>Business ID: <input type="text" name="businessId" required /></label>
-          <input type="submit" value="Submit" />
-        </form>
+        <CreateForm fields={fields} createItem={createItem}/>
       </section>
 
-      <h1>Get user with id</h1>
+      <h1>Get {ENTITY_NAME} with id</h1>
       <section>
         <form onSubmit={handleGetById}>
           <label>
@@ -118,32 +91,15 @@ export default function UsersPage() {
           </label>
           <input type="submit" value="Submit" />
         </form>
-          {userFromID ? (
-            userFromID.status >= 400 ? (
-              <p>User not found.</p> //show when userFromID is an empty object
-            ) : (
-              editingID === userFromID.id ? (
-                <form onSubmit={(e) => handleSave(e, userFromID.id)} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <label>Name: <input type="text" defaultValue={userFromID.name} name="name" placeholder="Name" required /></label>
-                  {userFromID.email}
-                  <label>Role: <input type="text" defaultValue={userFromID.role} name="role" placeholder="Role" required /></label>
-
-                  <button type="submit">Save</button>
-                  <button type="button" onClick={() => setEditingID(null)}>Cancel</button>
-                </form>
-              ) : (
-                <>
-                  <p>{userFromID.name}, {userFromID.email}, {userFromID.role}</p>
-                  <button onClick={() => handleEdit(userFromID.id)}>Update</button>
-                  <button onClick={() => handleDelete(userFromID.id)}>Delete</button>
-                </>
-              )
-            )
-          ) : (
-            <></> //show nothing when userFromID is null or undefined
-          )}
+        {!fromID || fromID.status >= 400 ? null : (
+          <Table 
+            data={[fromID]}
+            editableFields={editableFields}
+            updateItem={updateItem}
+            deleteItem={deleteItem}
+          />
+        )}
       </section>
-
     </>
   );
 }
