@@ -2,14 +2,29 @@ import "../css/AuthPage.css";
 import React, { useState, useEffect } from "react";
 import submitData from "../../api/postLogic";
 
-function AuthPage({ setIsLoggedIn }){
+function AuthPage({ setIsLoggedIn, setUserRole }){
   const [isLoginDisplay, setIsLoginDisplay] = useState(true);
   
   useEffect(() => {
-    if(sessionStorage.getItem("authToken")){
-      setIsLoggedIn(true);
+    const authToken = sessionStorage.getItem("authToken");
+    const expiration = sessionStorage.getItem("authTokenExpiration");
+  
+    if (authToken && expiration) {
+      const currentTime = new Date().getTime();
+      const expirationTime = new Date(expiration).getTime();
+  
+      if (currentTime >= expirationTime) {
+        sessionStorage.removeItem("authToken");
+        sessionStorage.removeItem("authTokenExpiration");
+        sessionStorage.removeItem("BusinessId");
+        setIsLoggedIn(false); //i think this will run only when on the auth page, but wtv
+        console.log("Token expired and removed.");
+      } else {
+        setIsLoggedIn(true);
+      }
     }
-  }, []);
+  }, [setIsLoggedIn]);
+  
   
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -24,7 +39,8 @@ function AuthPage({ setIsLoggedIn }){
     if(response.token){
       sessionStorage.setItem("authToken", response.token);
       sessionStorage.setItem("authTokenExpiration", response.expiration);
-      sessionStorage.setItem("BusinessId", response.businessId);  
+      sessionStorage.setItem("BusinessId", response.businessId); 
+      setUserRole(response.role); 
       setIsLoggedIn(true);
     }
   };

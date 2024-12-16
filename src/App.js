@@ -1,28 +1,32 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import './App.css';
 import Navbar from './Common-elements/js/Navbar';
-import {AuthPage, WelcomePage, OrdersPage, ReservationsPage, UsersPage, BusinessesPage} from './Pages/js';
+import { roleRoutes } from "./lib/roleRoutes.js";
+import { AuthPage, WelcomePage, OrdersPage, ReservationsPage, UsersPage, BusinessesPage } from './Pages/js';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  //TODO: Add persistence so that refreshing the page doesnt log you out
+  const [userRole, setUserRole] = useState(null);
+
   return (
     <Router>
       {!isLoggedIn && 
-        <AuthPage setIsLoggedIn={setIsLoggedIn}/>
+        <AuthPage setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} />
       }
+
       {isLoggedIn && 
-      <>
-        <Navbar />
-        <Routes>
-            <Route path="/" element={<WelcomePage/>}></Route>
-            <Route path="/orders" element={<OrdersPage />} />
-            <Route path="/reservations" element={<ReservationsPage />} />
-            <Route path="/users" element={<UsersPage />} />
-            <Route path="/businesses" element={<BusinessesPage />} />
-        </Routes>
-      </>
+        <>
+          <Navbar userRole={userRole}/>
+          <Routes>
+            <Route path="/" element={<WelcomePage />} />
+            
+            {/* Dynamically render routes based on user role */}
+            {roleRoutes[userRole]?.map((route) => (
+              <Route key={route.path} path={route.path} element={<route.component />} />
+            ))}
+          </Routes>
+        </>
       }
     </Router>
   );
