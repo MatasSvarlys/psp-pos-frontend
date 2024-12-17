@@ -13,6 +13,7 @@ export const roleRoutes = {
     { path: "/payments", label: "Payments", component: PaymentsPage },
     { path: "/refunds", label: "Refunds", component: RefundsPage },
     { path: "/products", label: "Products", component: ProductsPage },
+    { path: "/orders", label: "Orders", component: OrdersPage },
   ],
   BusinessOwner: [
     { path: "/orders", label: "Orders", component: OrdersPage },

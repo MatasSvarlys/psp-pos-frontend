@@ -11,6 +11,8 @@ const editableFields = [
     { name: "owner", type: "text" },
     { name: "email", type: "email" },
     { name: "phoneNumber", type: "text" },
+    { name: "startHour", type: "number" },
+    { name: "endHour", type: "number" },
   ];
   
   const fields = [
@@ -18,6 +20,8 @@ const editableFields = [
     { label: "Owner", name: "owner", type: "text", required: true },
     { label: "Email", name: "email", type: "email", required: true },
     { label: "Phone Number", name: "phoneNumber", type: "text", required: false },
+    { label: "Opening hour", name: "startHour", type: "number", required: true  },
+    { label: "Closing hour", name: "endHour", type: "number", required: true  },
   ];
   
 

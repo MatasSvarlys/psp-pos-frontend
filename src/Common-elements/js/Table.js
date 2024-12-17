@@ -1,6 +1,7 @@
 import { useState } from "react";
+import "../css/Table.css";
 
-const Table = ({ data, editableFields, updateItem, deleteItem }) => {
+const Table = ({ data, editableFields=null, updateItem=null, deleteItem }) => {
   const [editingID, setEditingID] = useState(null);
   const [editedRow, setEditedRow] = useState({});
 
@@ -63,7 +64,7 @@ const Table = ({ data, editableFields, updateItem, deleteItem }) => {
   };
 
   return (
-    <div>
+    <div className='table-container'>
       {data.length === 0 ? (
         <p>No data</p>
       ) : (
@@ -100,9 +101,11 @@ const Table = ({ data, editableFields, updateItem, deleteItem }) => {
                     </>
                   ) : (
                     <>
+                    {editableFields && 
                       <button type="button" onClick={() => handleEdit(row.id)}>
                         Edit
                       </button>
+                    }
                       <button type="button" onClick={() => handleDelete(row.id)}>
                         Delete
                       </button>
