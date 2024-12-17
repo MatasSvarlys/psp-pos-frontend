@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import './App.css';
 import Navbar from './Common-elements/js/Navbar';
 import { roleRoutes } from "./lib/roleRoutes.js";
-import { AuthPage, WelcomePage, OrdersPage, ReservationsPage, UsersPage, BusinessesPage } from './Pages/js';
+import { AuthPage, WelcomePage } from './Pages/js';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

@@ -3,4 +3,11 @@ export { default as AuthPage } from './AuthPage';
 export { default as UsersPage } from './UsersPage';
 export { default as OrdersPage} from './OrdersPage';
 export { default as BusinessesPage } from './BusinessesPage';
-export { default as ReservationsPage } from './ReservationsPage'
+export { default as ReservationsPage } from './ReservationsPage';
+export { default as ServicesPage } from './ServicesPage';
+export { default as TaxesPage } from './TaxesPage';
+export { default as GiftCardsPage} from './GiftCardsPage';
+export { default as DiscountsPage } from './DiscountsPage';
+export { default as PaymentsPage } from './PaymentsPage';
+export { default as RefundsPage } from './RefundsPage';
+export { default as ProductsPage } from './ProductsPage';

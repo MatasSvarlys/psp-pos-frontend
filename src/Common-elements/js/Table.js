@@ -15,13 +15,14 @@ const Table = ({ data, editableFields, updateItem, deleteItem }) => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
+  
     setEditedRow((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "number" ? Number(value) || 0 : value,
     }));
   };
-
+  
   const handleSave = async (id) => {
     await updateItem(id, editedRow);
     setEditingID(null); 
@@ -62,53 +63,59 @@ const Table = ({ data, editableFields, updateItem, deleteItem }) => {
   };
 
   return (
-    <table>
-      <thead>
-        <tr>
-          {headers.map((header, index) => (
-            <th key={index}>{header}</th>
-          ))}
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((row) => (
-          <tr key={row.id}>
-            {headers.map((header) => (
-              <td key={header}>
-                {editingID === row.id && editableFields.some((f) => f.name === header) ? (
-                  renderEditableCell(header, row[header])
-                ) : (
-                  row[header] || "-"
-                )}
-              </td>
+    <div>
+      {data.length === 0 ? (
+        <p>No data</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              {headers.map((header, index) => (
+                <th key={index}>{header}</th>
+              ))}
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((row) => (
+              <tr key={row.id}>
+                {headers.map((header) => (
+                  <td key={header}>
+                    {editingID === row.id && editableFields.some((f) => f.name === header) ? (
+                      renderEditableCell(header, row[header])
+                    ) : (
+                      row[header] || "-"
+                    )}
+                  </td>
+                ))}
+                <td>
+                  {editingID === row.id ? (
+                    <>
+                      <button type="button" onClick={() => handleSave(row.id)}>
+                        Save
+                      </button>
+                      <button type="button" onClick={() => setEditingID(null)}>
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button type="button" onClick={() => handleEdit(row.id)}>
+                        Edit
+                      </button>
+                      <button type="button" onClick={() => handleDelete(row.id)}>
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </td>
+              </tr>
             ))}
-            <td>
-              {editingID === row.id ? (
-                <>
-                  <button type="button" onClick={() => handleSave(row.id)}>
-                    Save
-                  </button>
-                  <button type="button" onClick={() => setEditingID(null)}>
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button type="button" onClick={() => handleEdit(row.id)}>
-                    Edit
-                  </button>
-                  <button type="button" onClick={() => handleDelete(row.id)}>
-                    Delete
-                  </button>
-                </>
-              )}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
+          </tbody>
+        </table>
+      )}
+    </div>
+  );  
 };
 
 export default Table;

@@ -2,9 +2,9 @@ import { BACKEND_LINK } from "../lib/consts";
 
 const postData = async (apiName, data) => {
   if (!data) return null;
-
+  
   const endpoint = `${BACKEND_LINK}/${apiName}`;
-
+  
   try {
     const token = sessionStorage.getItem("authToken");
     const businessId = sessionStorage.getItem("BusinessId");

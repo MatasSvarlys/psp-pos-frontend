@@ -1,4 +1,4 @@
-export default function OrdersPage() {
+export default function RefundsPage() {
 
   return (
     <div className='table-container'>

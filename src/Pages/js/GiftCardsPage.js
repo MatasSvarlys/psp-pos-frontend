@@ -1,4 +1,4 @@
-export default function OrdersPage() {
+export default function GiftCardsPage() {
 
   return (
     <div className='table-container'>

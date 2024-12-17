@@ -9,6 +9,7 @@ const useCrud = (entity) => {
   const [loading, setLoading] = useState(false);
 
   const createItem = async (payload) => {
+    window.alert("trying to send data: " + JSON.stringify(payload));
     const response = await submitData(entity, payload);
     if (!response || response.status >= 400) {
         window.alert(JSON.stringify(response));

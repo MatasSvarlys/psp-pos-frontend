@@ -3,32 +3,29 @@ import useCrud from "../../api/useCrud";
 import Table from "../../Common-elements/js/Table";
 import CreateForm from "../../Common-elements/js/CreateForm";
 
-const ENTITY_NAME = "reservation";
+const ENTITY_NAME = "service";
 
 //thsese dont particularly need to be out here, but i think its good practice to have constants out of the export function
-
 const editableFields = [
-    { name: "appointmentTime", type: "text" },
-    { name: "serviceId", type: "text" },
-    { name: "employeeId", type: "text" },
-    { name: "phoneNumber", type: "text" },
-    { name: "email", type: "email" },
-];
+    { name: "name", type: "text" },
+    { name: "category", type: "text" },
+    { name: "price", type: "number" },
+    { name: "durationMin", type: "number" },
+    { name: "description", type: "text" },
+  ];
   
-//TODO: maybe make the emploeeId by default your id 
-const fields = [
-    { label: "Customer Name", name: "customerName", type: "text", required: true },
-    { label: "Appointment Time", name: "appointmentTime", type: "text", required: true },
-    { label: "Service ID", name: "serviceId", type: "text", required: true },
-    { label: "Employee ID", name: "employeeId", type: "text", required: true },
-    { label: "Phone Number", name: "phoneNumber", type: "text", required: false },
-    { label: "Email", name: "email", type: "email", required: true },
-];
-  
+  const fields = [
+    { label: "Name", name: "name", type: "text", required: true },
+    { label: "Category", name: "category", type: "text", required: true },
+    { label: "Price", name: "price", type: "decimal", required: true },
+    { label: "Duration (Min)", name: "durationMin", type: "number", required: true },
+    { label: "Business ID", name: "businessId", type: "text", required: true },
+    { label: "Description", name: "description", type: "text", required: false },
+  ];
   
 
-export default function ReservationsPage() {
-  const { data: reservations, loading, fetchItems, fetchItemById, createItem, deleteItem, updateItem } = useCrud(ENTITY_NAME+"s");  
+export default function ServicesPage() {
+  const { data: services, loading, fetchItems, fetchItemById, createItem, deleteItem, updateItem } = useCrud(ENTITY_NAME+"s");  
   const [fromID, setfromID] = useState(null);
   
   //initial load
@@ -36,17 +33,17 @@ export default function ReservationsPage() {
     fetchItems();
   }, []);
 
-  //update fromID (if its not null) when reservations change
+  //update fromID (if its not null) when services change
   useEffect(() => {
     if (fromID?.id) {
-      const updatedReservations = reservations.find((user) => user.id === fromID.id);
-      if (updatedReservations) {
-        setfromID(updatedReservations);
+      const updatedService = services.find((user) => user.id === fromID.id);
+      if (updatedService) {
+        setfromID(updatedService);
       } else {
         setfromID(null);
       }
     }
-  }, [reservations, setfromID]);
+  }, [services, setfromID]);
   
   const handleGetById = async (e) => {
     e.preventDefault();
@@ -57,14 +54,15 @@ export default function ReservationsPage() {
     const response = await fetchItemById(id);
     setfromID(response);
   };
-   
-  return (
+  
+  
+return (
     <>
       <h1>All {ENTITY_NAME}s</h1>
       <section>
           {loading ? (<p>fetching data...</p>) : ( 
               <Table 
-                data={reservations}
+                data={services}
                 editableFields={editableFields}
                 updateItem={updateItem}
                 deleteItem={deleteItem}
