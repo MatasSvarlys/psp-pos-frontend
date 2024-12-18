@@ -53,7 +53,7 @@ export default function TaxesPage() {
   
   return (
     <>
-      <h1>All {ENTITY_NAME}s</h1>
+      <h1>All {ENTITY_NAME}es</h1>
       <section>
           {loading ? (<p>fetching data...</p>) : ( 
               <Table 

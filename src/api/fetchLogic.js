@@ -15,7 +15,7 @@ const fetchDataFromApi = async (urlEnd, id=null) => {
     });
     const data = await response.json();
 
-    console.log("fetched: ", data);
+    console.log(`GET ${fetchLink}: `, data);
     return data;
   } catch (error) {
     console.error("Error fetching data: ", error);

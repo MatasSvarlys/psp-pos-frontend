@@ -2,36 +2,51 @@ import { useState } from "react";
 import "../css/Table.css";
 
 const Table = ({ data, editableFields = null, updateItem = null, deleteItem=null, onRowSelect = null }) => {
-  const sanitizePayload = (payload, fields) => {
-    const formatDateTime = (value) => {
-      const date = new Date(value);
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
-    };
-
-    return fields.reduce((acc, field) => {
-      const key = field.name;
-      const value = payload[key];
-
-      switch (field.type) {
-        case "number":
-        case "decimal":
-          acc[key] = value === undefined || value === "" ? null : Number(value);
-          break;
-        case "datetime-local":
-          acc[key] = value === undefined || value === "" ? null : formatDateTime(value);
-          break;
-        case "checkbox":
-          acc[key] = value === "on" ? true : false;
-          break;
-        default:
-          acc[key] = value !== undefined ? value : "";
-          acc[key] = value !== '' ? value : null;
-          break;
-      }
-
-      return acc;
-    }, {});
+  const formatDateTimeForDisplay = (value) => {
+    const date = new Date(value);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    
+    const out = `${year}-${month}-${day}T${hours}:${minutes}`;
+    console.log(out);
+    return out;
   };
+  const formatDateTimeForSending = (value) => {
+    const date = new Date(value);
+    const out = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
+    return out;
+  };
+    
+  const sanitizePayload = (payload, fields) => {
+
+  return fields.reduce((acc, field) => {
+    const key = field.name;
+    const value = payload[key];
+
+    switch (field.type) {
+      case "number":
+      case "decimal":
+        acc[key] = value === undefined || value === "" ? null : Number(value);
+        break;
+      case "datetime-local":
+        acc[key] = value === undefined || value === "" ? null : formatDateTimeForSending(value);
+        break;
+      case "checkbox":
+        acc[key] = value === "on" ? true : false;
+        break;
+      default:
+        acc[key] = value !== undefined ? value : "";
+        acc[key] = value !== '' ? value : null;
+        break;
+    }
+
+    return acc;
+  }, {});
+};
+
 
   const [editingID, setEditingID] = useState(null);
   const [editedRow, setEditedRow] = useState({});
@@ -85,6 +100,21 @@ const Table = ({ data, editableFields = null, updateItem = null, deleteItem=null
             </option>
           ))}
         </select>
+      );
+    }
+
+    if (config?.type === "datetime-local") {
+      const dateValue = editedRow[field] || value;
+      const formattedValue = dateValue ? formatDateTimeForDisplay(dateValue) : "";
+      console.log("edited val",editedRow[field]);
+      return (
+        <input
+          name={field}
+          type="datetime-local"
+          value={formattedValue}
+          onChange={handleChange}
+          required
+        />
       );
     }
 
@@ -148,7 +178,7 @@ const Table = ({ data, editableFields = null, updateItem = null, deleteItem=null
                         </button>
                       }
                       {onRowSelect && (
-                        <button type="button" onClick={() => {onRowSelect(row.id); console.log(row.id)}}>
+                        <button type="button" onClick={() => {onRowSelect(row.id);}}>
                           Select
                         </button>
                       )}

@@ -2,37 +2,47 @@ import { useEffect, useState } from "react";
 import useCrud from "../../api/useCrud";
 import Table from "../../Common-elements/js/Table";
 import CreateForm from "../../Common-elements/js/CreateForm";
+import fetchDataFromApi from "../../api/fetchLogic";
 
 const ENTITY_NAME = "reservation";
-
-//thsese dont particularly need to be out here, but i think its good practice to have constants out of the export function
-
-const editableFields = [
-    { name: "appointmentTime", type: "text" },
-    { name: "serviceId", type: "text" },
-    { name: "employeeId", type: "text" },
-    { name: "phoneNumber", type: "text" },
-    { name: "email", type: "email" },
-];
-  
-//TODO: maybe make the emploeeId by default your id 
-const fields = [
-    { label: "Customer Name", name: "customerName", type: "text", required: true },
-    { label: "Appointment Time", name: "appointmentTime", type: "text", required: true },
-    { label: "Service ID", name: "serviceId", type: "text", required: true },
-    { label: "Employee ID", name: "employeeId", type: "text", required: true },
-    { label: "Phone Number", name: "phoneNumber", type: "text", required: false },
-    { label: "Email", name: "email", type: "email", required: true },
-];
-  
-  
 
 export default function ReservationsPage() {
   const { data: reservations, loading, fetchItems, fetchItemById, createItem, deleteItem, updateItem } = useCrud(ENTITY_NAME+"s");  
   const [fromID, setfromID] = useState(null);
+  const [employeeIds, setEmployeeId] = useState([]);
+  const [serviceIds, setServiceId] = useState([]);
+  const editableFields = [
+      { name: "appointmentTime", type: "text" },
+      { name: "serviceId", type: "select", options: serviceIds },
+      { name: "employeeId", type: "select", options: employeeIds },
+      { name: "phoneNumber", type: "text" },
+      { name: "email", type: "email" },
+  ];
+    
+  //TODO: maybe make the emploeeId by default your id 
+  const fields = [
+      { label: "Customer Name", name: "customerName", type: "text", required: true },
+      { label: "Appointment Time", name: "appointmentTime", type: "text", required: true },
+      { label: "Service ID", name: "serviceId", type: "select", options: serviceIds, required: true },
+      { label: "Employee ID", name: "employeeId", type: "select", options: employeeIds, required: true },
+      { label: "Phone Number", name: "phoneNumber", type: "text", required: false },
+      { label: "Email", name: "email", type: "email", required: true },
+  ];
+    
   
   //initial load
   useEffect(() => {
+    const fetchAllEntityIDs = async (entityName, setFunc) => {
+      try {
+        const entity = await fetchDataFromApi(entityName);
+        setFunc(entity.map((entity) => entity.id));
+      } catch (error) {
+        console.error("Error fetching IDs:", error);
+      }
+    };
+    fetchAllEntityIDs("services", setServiceId);
+    //TODO: send your id instead of letting you chose
+    fetchAllEntityIDs("users", setEmployeeId);
     fetchItems();
   }, []);
 
