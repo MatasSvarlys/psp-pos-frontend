@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import useCrud from "../../api/useCrud";
 import Table from "../../Common-elements/js/Table";
 import CreateForm from "../../Common-elements/js/CreateForm";
+import fetchDataFromApi from "../../api/fetchLogic";
 
 const ENTITY_NAME = "tax";
 
@@ -15,6 +16,7 @@ const editableFields = [
 
 const fields = [
   { label: "Percentage", name: "percentage", type: "number", required: true },
+  { label: "Name", name: "name", type: "text", required: true },
   { label: "Tax Category", name: "taxCategory", type: "select", required: true, options: ["Service", "Product", "Both"] },
   { label: "Start Date", name: "startDate", type: "datetime-local", required: true },
   { label: "End Date", name: "endDate", type: "datetime-local", required: false },

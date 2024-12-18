@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import useCrud from "../../api/useCrud";
 import Table from "../../Common-elements/js/Table";
 import CreateForm from "../../Common-elements/js/CreateForm";
+import fetchDataFromApi from "../../api/fetchLogic";
 
 const ENTITY_NAME = "service";
 
@@ -14,22 +15,32 @@ const editableFields = [
     { name: "description", type: "text" },
   ];
   
-  const fields = [
-    { label: "Name", name: "name", type: "text", required: true },
-    { label: "Category", name: "category", type: "text", required: true },
-    { label: "Price", name: "price", type: "decimal", required: true },
-    { label: "Duration (Min)", name: "durationMin", type: "number", required: true },
-    { label: "Business ID", name: "businessId", type: "text", required: true },
-    { label: "Description", name: "description", type: "text", required: false },
-  ];
   
-
-export default function ServicesPage() {
-  const { data: services, loading, fetchItems, fetchItemById, createItem, deleteItem, updateItem } = useCrud(ENTITY_NAME+"s");  
-  const [fromID, setfromID] = useState(null);
   
+  export default function ServicesPage() {
+    const { data: services, loading, fetchItems, fetchItemById, createItem, deleteItem, updateItem } = useCrud(ENTITY_NAME+"s");  
+    const [fromID, setfromID] = useState(null);
+    const [taxIDs, setTaxIDs] = useState([]);
+    const fields = [
+      { label: "Name", name: "name", type: "text", required: true },
+      { label: "Category", name: "category", type: "text", required: true },
+      { label: "Price", name: "price", type: "decimal", required: true },
+      { label: "Duration (Min)", name: "durationMin", type: "number", required: true },
+      { label: "Business ID", name: "businessId", type: "text", required: true },
+      { label: "Tax ID", name: "taxId", type: "select", options: taxIDs, required: true },
+      { label: "Description", name: "description", type: "text", required: false },
+    ];
   //initial load
   useEffect(() => {
+    const fetchAllEntityIDs = async (entityName, setFunc) => {
+      try {
+        const entity = await fetchDataFromApi(entityName);
+        setFunc(entity.map((entity) => entity.id));
+      } catch (error) {
+        console.error("Error fetching IDs:", error);
+      }
+    };
+    fetchAllEntityIDs("taxes", setTaxIDs);
     fetchItems();
   }, []);
 
