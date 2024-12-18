@@ -32,7 +32,7 @@ export default function DiscountsPage() {
     { label: "Name", name: "name", type: "text", required: false },
     { label: "Value", name: "value", type: "decimal", required: true },
     { 
-      label: "Discount Target", 
+      label: "Target", 
       name: "discountTarget", 
       type: "select", 
       options: ["Order", "Product"], 

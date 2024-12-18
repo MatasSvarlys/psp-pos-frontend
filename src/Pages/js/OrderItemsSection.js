@@ -42,7 +42,9 @@ export default function OrderItemsSection({order}) {
         try {
             const entity = await fetchDataFromApi(entityName);
             setFunc(entity.map((entity) => entity.id));
-            setFunc(prev => [...prev, ""]);
+            if(entityName !== "products"){
+              setFunc(prev => [...prev, ""]);
+            }
         } catch (error) {
             console.error("Error fetching IDs:", error);
         }

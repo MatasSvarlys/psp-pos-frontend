@@ -25,6 +25,9 @@ export default function Payments() {
       try {
         const entity = await fetchDataFromApi(entityName);
         setFunc(entity.map((entity) => entity.id));
+        if(entityName === "paymentterminals"){
+          setFunc(prev => [...prev, ""]);
+        }
       } catch (error) {
         console.error("Error fetching IDs:", error);
       }
