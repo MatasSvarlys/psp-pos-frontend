@@ -20,7 +20,7 @@ const postData = async (apiName, data) => {
     });
 
     const responseData = await res.json();
-    console.log("POST submitted: ", responseData);
+    console.log("POST submitted:\n\nResp: ", JSON.stringify(responseData)+"\n\nbody: "+ JSON.stringify(data));
     return responseData;
   } catch (error) {
     console.error("Error submitting POST data: ", error);

@@ -2,23 +2,35 @@ import { useEffect, useState } from "react";
 import useCrud from "../../api/useCrud";
 import Table from "../../Common-elements/js/Table";
 import CreateForm from "../../Common-elements/js/CreateForm";
+import fetchDataFromApi from "../../api/fetchLogic";
 
 const ENTITY_NAME = "refund";
 
-//thsese dont particularly need to be out here, but i think its good practice to have constants out of the export function
-const fields = [
-  { label: "Order Id", name: "orderId", type: "text", required: true },
-  { label: "Payment Id", name: "paymentId", type: "text", required: true },
-  { label: "Amount", name: "amount", type: "datetime-local", required: true },
-  { label: "End Date", name: "endDate", type: "datetime-local", required: false },
-];
-
-export default function RerfundsPage() {
+export default function RerfundsPage() {  
   const { data, loading, fetchItems, fetchItemById, createItem, deleteItem, updateItem } = useCrud(ENTITY_NAME+"s");  
   const [fromID, setfromID] = useState(null);
+  const [OrderIDs, setOrderIDs] = useState([]);
+  const [PaymentIDs, setPaymentIDs] = useState([]);
   
+  const fields = [
+    { label: "Order Id", name: "orderId", type: "select", options: OrderIDs, required: true },
+    { label: "Payment Id", name: "paymentId", type: "select", options: PaymentIDs, required: true },
+    { label: "Amount", name: "amount", type: "datetime-local", required: true },
+    { label: "End Date", name: "endDate", type: "datetime-local", required: false },
+  ];
+
   //initial load
   useEffect(() => {
+    const fetchAllEntityIDs = async (entityName, setFunc) => {
+      try {
+        const entity = await fetchDataFromApi(entityName);
+        setFunc(entity.map((entity) => entity.id));
+      } catch (error) {
+        console.error("Error fetching IDs:", error);
+      }
+    };
+    fetchAllEntityIDs("orders", setOrderIDs);
+    fetchAllEntityIDs("payments", setPaymentIDs);
     fetchItems();
   }, []);
 

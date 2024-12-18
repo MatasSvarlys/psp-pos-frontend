@@ -1,38 +1,44 @@
 const CreateForm = ({ fields, createItem }) => {
+  //TODO: move this somewhere the table can use too
+  const sanitizePayload = (payload, fields) => {
+    const formatDateTime = (value) => {
+      const date = new Date(value);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
+    };
+  
+    return fields.reduce((acc, field) => {
+      const key = field.name;
+      const value = payload[key];
+  
+      switch (field.type) {
+        case "number":
+        case "decimal":
+          acc[key] = value === undefined || value === "" ? null : Number(value);
+          break;
+        case "datetime-local":
+          acc[key] = value === undefined || value === "" ? null : formatDateTime(value);
+          break;
+        case "checkbox":
+          acc[key] = value === "on" ? true : false;
+          break;
+        default:
+          acc[key] = value !== undefined ? value : "";
+          acc[key] = value !== '' ? value : null;
+          break;
+      }
+  
+      return acc;
+    }, {});
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formData = new FormData(e.target);
     const payload = Object.fromEntries(formData);
 
-    const formatDateTime = (value) => {
-      const date = new Date(value);
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
-    };
-    
-    const sanitizedPayload = Object.keys(payload).reduce((acc, key) => {
-      const field = fields.find((f) => f.name === key);
-      const value = payload[key];
-    
-      switch (field?.type) {
-        case "number":
-        case "decimal":
-          acc[key] = value === "" ? null : Number(value);
-          break;
-        case "datetime-local":
-          acc[key] = value === "" ? null : formatDateTime(value);
-          break;
-        case "checkbox":
-          acc[key] = value === "on";
-          break;
-        default:
-          acc[key] = value;
-          break;
-      }
-    
-      return acc;
-    }, {});
-    
+    const sanitizedPayload = sanitizePayload(payload, fields);
+       
     await createItem(sanitizedPayload);
   };
 

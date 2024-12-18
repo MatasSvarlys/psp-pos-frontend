@@ -2,45 +2,66 @@ import { useEffect, useState } from "react";
 import useCrud from "../../api/useCrud";
 import Table from "../../Common-elements/js/Table";
 import CreateForm from "../../Common-elements/js/CreateForm";
+import fetchDataFromApi from "../../api/fetchLogic";
 
 const ENTITY_NAME = "discount";
-
-//thsese dont particularly need to be out here, but i think its good practice to have constants out of the export function
-const fields = [
-  { label: "Name", name: "name", type: "text", required: false },
-  { label: "Value", name: "value", type: "decimal", required: true },
-  { 
-    label: "Discount Target", 
-    name: "discountTarget", 
-    type: "select", 
-    options: ["Order", "Product"], 
-    required: true 
-  },
-  { label: "Product ID", name: "productId", type: "text", required: false },
-  { label: "Start Date", name: "startDate", type: "datetime-local", required: true },
-  { label: "End Date", name: "endDate", type: "datetime-local", required: true },
-];
-
-const editableFields = [
-  { name: "name", type: "text" },
-  { name: "value", type: "decimal" },
-  { 
-    name: "discountTarget", 
-    type: "select", 
-    options: ["Order", "Product"] 
-  },
-  { name: "productId", type: "text" },
-  { name: "startDate", type: "datetime-local" },
-  { name: "endDate", type: "datetime-local" },
-];
-
 
 export default function DiscountsPage() {
   const { data, loading, fetchItems, fetchItemById, createItem, deleteItem, updateItem } = useCrud(ENTITY_NAME+"s");  
   const [fromID, setfromID] = useState(null);
+  const [productIDs, setProductIDs] = useState([]);
   
+  const editableFields = [
+    { name: "name", type: "text" },
+    { name: "value", type: "decimal" },
+    { 
+      name: "discountTarget", 
+      type: "select", 
+      options: ["Order", "Product"] 
+    },
+    { 
+      label: "Product ID", 
+      name: "productId", 
+      type: "select",
+      options: productIDs
+    },
+    { name: "startDate", type: "datetime-local" },
+    { name: "endDate", type: "datetime-local" },
+  ];
+  const fields = [
+    { label: "Name", name: "name", type: "text", required: false },
+    { label: "Value", name: "value", type: "decimal", required: true },
+    { 
+      label: "Discount Target", 
+      name: "discountTarget", 
+      type: "select", 
+      options: ["Order", "Product"], 
+      required: true 
+    },
+    { 
+      label: "Product ID", 
+      name: "productId", 
+      type: "select",
+      options: productIDs, 
+      required: false 
+    },
+    { label: "Start Date", name: "startDate", type: "datetime-local", required: true },
+    { label: "End Date", name: "endDate", type: "datetime-local", required: true },
+  ];
+
   //initial load
   useEffect(() => {
+    //TODO: for some reason i cant export this function so this will have to do for now
+    const fetchAllEntityIDs = async (entityName, setFunc) => {
+      try {
+        const entity = await fetchDataFromApi(entityName);
+        setFunc(entity.map((entity) => entity.id));
+        setFunc(prev => [...prev, ""]);
+      } catch (error) {
+        console.error("Error fetching IDs:", error);
+      }
+    };
+    fetchAllEntityIDs("products", setProductIDs);
     fetchItems();
   }, []);
 

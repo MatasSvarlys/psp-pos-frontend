@@ -2,6 +2,37 @@ import { useState } from "react";
 import "../css/Table.css";
 
 const Table = ({ data, editableFields=null, updateItem=null, deleteItem }) => {
+  const sanitizePayload = (payload, fields) => {
+    const formatDateTime = (value) => {
+      const date = new Date(value);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
+    };
+  
+    return fields.reduce((acc, field) => {
+      const key = field.name;
+      const value = payload[key];
+  
+      switch (field.type) {
+        case "number":
+        case "decimal":
+          acc[key] = value === undefined || value === "" ? null : Number(value);
+          break;
+        case "datetime-local":
+          acc[key] = value === undefined || value === "" ? null : formatDateTime(value);
+          break;
+        case "checkbox":
+          acc[key] = value === "on" ? true : false;
+          break;
+        default:
+          acc[key] = value !== undefined ? value : "";
+          break;
+      }
+  
+      return acc;
+    }, {});
+  };
+  
+  
   const [editingID, setEditingID] = useState(null);
   const [editedRow, setEditedRow] = useState({});
 
@@ -16,16 +47,21 @@ const Table = ({ data, editableFields=null, updateItem=null, deleteItem }) => {
   };
 
   const handleChange = (e) => {
-    const { name, value, type } = e.target;
+    const { name, value, type, checked } = e.target;
+
+    const rawInput = { [name]: type === "checkbox" ? (checked ? "on" : "") : value };
+  
+    const sanitizedInput = sanitizePayload(rawInput, editableFields);
   
     setEditedRow((prev) => ({
       ...prev,
-      [name]: type === "number" ? Number(value) || 0 : value,
+      ...sanitizedInput,
     }));
   };
   
   const handleSave = async (id) => {
-    await updateItem(id, editedRow);
+    const sanitizedPayload = sanitizePayload(editedRow, editableFields);
+    await updateItem(id, sanitizedPayload);
     setEditingID(null); 
     setEditedRow({});
   };
