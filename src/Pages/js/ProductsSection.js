@@ -38,6 +38,7 @@ export default function ProductsSection() {
         try {
           const entity = await fetchDataFromApi(entityName);
           setFunc(entity.map((entity) => entity.id));
+          setFunc(prev => [...prev, ""]);
         } catch (error) {
           console.error("Error fetching IDs:", error);
         }

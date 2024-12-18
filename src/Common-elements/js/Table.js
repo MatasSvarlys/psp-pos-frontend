@@ -1,17 +1,17 @@
 import { useState } from "react";
 import "../css/Table.css";
 
-const Table = ({ data, editableFields=null, updateItem=null, deleteItem }) => {
+const Table = ({ data, editableFields = null, updateItem = null, deleteItem=null, onRowSelect = null }) => {
   const sanitizePayload = (payload, fields) => {
     const formatDateTime = (value) => {
       const date = new Date(value);
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
     };
-  
+
     return fields.reduce((acc, field) => {
       const key = field.name;
       const value = payload[key];
-  
+
       switch (field.type) {
         case "number":
         case "decimal":
@@ -25,21 +25,21 @@ const Table = ({ data, editableFields=null, updateItem=null, deleteItem }) => {
           break;
         default:
           acc[key] = value !== undefined ? value : "";
+          acc[key] = value !== '' ? value : null;
           break;
       }
-  
+
       return acc;
     }, {});
   };
-  
-  
+
   const [editingID, setEditingID] = useState(null);
   const [editedRow, setEditedRow] = useState({});
 
   const handleEdit = (id) => {
     setEditingID(id);
     const rowToEdit = data.find((row) => row.id === id);
-    setEditedRow({ ...rowToEdit }); // Initialize editing with the current row data
+    setEditedRow({ ...rowToEdit });
   };
 
   const handleDelete = async (id) => {
@@ -50,19 +50,19 @@ const Table = ({ data, editableFields=null, updateItem=null, deleteItem }) => {
     const { name, value, type, checked } = e.target;
 
     const rawInput = { [name]: type === "checkbox" ? (checked ? "on" : "") : value };
-  
+
     const sanitizedInput = sanitizePayload(rawInput, editableFields);
-  
+
     setEditedRow((prev) => ({
       ...prev,
       ...sanitizedInput,
     }));
   };
-  
+
   const handleSave = async (id) => {
     const sanitizedPayload = sanitizePayload(editedRow, editableFields);
     await updateItem(id, sanitizedPayload);
-    setEditingID(null); 
+    setEditingID(null);
     setEditedRow({});
   };
 
@@ -100,7 +100,7 @@ const Table = ({ data, editableFields=null, updateItem=null, deleteItem }) => {
   };
 
   return (
-    <div className='table-container'>
+    <div className="table-container">
       {data.length === 0 ? (
         <p>No data</p>
       ) : (
@@ -118,7 +118,7 @@ const Table = ({ data, editableFields=null, updateItem=null, deleteItem }) => {
               <tr key={row.id}>
                 {headers.map((header) => (
                   <td key={header}>
-                    {editingID === row.id && editableFields.some((f) => f.name === header) ? (
+                    {editingID === row.id && editableFields?.some((f) => f.name === header) ? (
                       renderEditableCell(header, row[header])
                     ) : (
                       row[header] || "-"
@@ -137,14 +137,21 @@ const Table = ({ data, editableFields=null, updateItem=null, deleteItem }) => {
                     </>
                   ) : (
                     <>
-                    {editableFields && 
-                      <button type="button" onClick={() => handleEdit(row.id)}>
-                        Edit
-                      </button>
-                    }
-                      <button type="button" onClick={() => handleDelete(row.id)}>
-                        Delete
-                      </button>
+                      {editableFields && (
+                        <button type="button" onClick={() => handleEdit(row.id)}>
+                          Edit
+                        </button>
+                      )}
+                      {handleDelete && 
+                        <button type="button" onClick={() => handleDelete(row.id)}>
+                          Delete
+                        </button>
+                      }
+                      {onRowSelect && (
+                        <button type="button" onClick={() => {onRowSelect(row.id); console.log(row.id)}}>
+                          Select
+                        </button>
+                      )}
                     </>
                   )}
                 </td>
@@ -154,7 +161,7 @@ const Table = ({ data, editableFields=null, updateItem=null, deleteItem }) => {
         </table>
       )}
     </div>
-  );  
+  );
 };
 
 export default Table;

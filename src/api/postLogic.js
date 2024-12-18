@@ -27,5 +27,4 @@ const postData = async (apiName, data) => {
     return null;
   }
 };
-
 export default postData;
