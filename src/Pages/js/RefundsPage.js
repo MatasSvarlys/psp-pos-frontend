@@ -15,7 +15,7 @@ export default function RerfundsPage() {
   const fields = [
     { label: "Order Id", name: "orderId", type: "select", options: OrderIDs, required: true },
     { label: "Payment Id", name: "paymentId", type: "select", options: PaymentIDs, required: true },
-    { label: "Amount", name: "amount", type: "datetime-local", required: true },
+    { label: "Amount", name: "amount", type: "decimal", required: true },
     { label: "End Date", name: "endDate", type: "datetime-local", required: false },
   ];
 
