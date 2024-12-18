@@ -13,7 +13,7 @@ const editableFields = [
   { name: "expiryDate", type: "datetime-local" },
   { name: "isActive", type: "checkbox" },
 ];
-//TODO: figure out if is active is neccisary as an input here, maybe you wanna keep it as yes by default
+
 const fields = [
   { label: "Code", name: "code", type: "text", required: true },
   { label: "Initial Balance", name: "initialBalance", type: "decimal", required: true },

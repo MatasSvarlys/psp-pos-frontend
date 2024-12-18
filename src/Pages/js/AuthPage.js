@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import submitData from "../../api/postLogic";
 
 function AuthPage({ setIsLoggedIn, setUserRole }){
+  //TODO: export this higher up so it refreshes/logs you out when the token is invalid
   useEffect(() => {
     const authToken = localStorage.getItem("authToken");
     const expiration = localStorage.getItem("authTokenExpiration");
@@ -17,7 +18,7 @@ function AuthPage({ setIsLoggedIn, setUserRole }){
         localStorage.removeItem("BusinessId"); 
         localStorage.removeItem("UserId"); 
         localStorage.removeItem("userRole"); 
-        setIsLoggedIn(false); //i think this will run only when on the auth page, but wtv
+        setIsLoggedIn(false);
         console.log("Token expired and removed.");
       } else {
         setIsLoggedIn(true);

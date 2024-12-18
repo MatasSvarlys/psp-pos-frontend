@@ -51,7 +51,6 @@ export default function OrderItemsSection({order}) {
     fetchAllEntityIDs("products", setProductIDs);
     fetchAllEntityIDs("productvariation", setProductVariationIDs);
     fetchAllEntityIDs("discounts", setDiscountIDs);
-    // window.alert("got order"+order.id);
   }, []);
 
   useEffect(() => {

@@ -27,7 +27,6 @@ export default function ProductsSection() {
 
   const editableFields = [
     { name: "name", type: "text" },
-    { name: "taxId", type: "select", options: taxIDs },
     { name: "price", type: "decimal" },
     { name: "quantityInStock", type: "number" },
     { name: "description", type: "text" },
@@ -46,7 +45,7 @@ export default function ProductsSection() {
     fetchAllEntityIDs("taxes", setTaxIDs);
     fetchProducts();
   }, []);
-
+  //TODO: make a select that fetches all product variations from that product
   return (
     <>
       <h2>All Products</h2>

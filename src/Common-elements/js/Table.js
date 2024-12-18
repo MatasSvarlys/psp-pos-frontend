@@ -14,6 +14,7 @@ const Table = ({ data, editableFields = null, updateItem = null, deleteItem=null
     console.log(out);
     return out;
   };
+  
   const formatDateTimeForSending = (value) => {
     const date = new Date(value);
     const out = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
@@ -22,30 +23,30 @@ const Table = ({ data, editableFields = null, updateItem = null, deleteItem=null
     
   const sanitizePayload = (payload, fields) => {
 
-  return fields.reduce((acc, field) => {
-    const key = field.name;
-    const value = payload[key];
+    return fields.reduce((acc, field) => {
+      const key = field.name;
+      const value = payload[key];
 
-    switch (field.type) {
-      case "number":
-      case "decimal":
-        acc[key] = value === undefined || value === "" ? null : Number(value);
-        break;
-      case "datetime-local":
-        acc[key] = value === undefined || value === "" ? null : formatDateTimeForSending(value);
-        break;
-      case "checkbox":
-        acc[key] = value === "on" ? true : false;
-        break;
-      default:
-        acc[key] = value !== undefined ? value : "";
-        acc[key] = value !== '' ? value : null;
-        break;
-    }
+      switch (field.type) {
+        case "number":
+        case "decimal":
+          acc[key] = value === undefined || value === "" ? null : value;
+          break;
+        case "datetime-local":
+          acc[key] = value === undefined || value === "" ? null : formatDateTimeForSending(value);
+          break;
+        case "checkbox":
+          acc[key] = value === "on" ? true : false;
+          break;
+        default:
+          acc[key] = value !== undefined ? value : "";
+          acc[key] = value !== '' ? value : null;
+          break;
+      }
 
-    return acc;
-  }, {});
-};
+      return acc;
+    }, {});
+  };
 
 
   const [editingID, setEditingID] = useState(null);
@@ -66,7 +67,10 @@ const Table = ({ data, editableFields = null, updateItem = null, deleteItem=null
 
     const rawInput = { [name]: type === "checkbox" ? (checked ? "on" : "") : value };
 
-    const sanitizedInput = sanitizePayload(rawInput, editableFields);
+    const sanitizedInput = sanitizePayload(
+      { ...editedRow, [name]: rawInput[name] },
+      editableFields
+    );
 
     setEditedRow((prev) => ({
       ...prev,
@@ -76,6 +80,13 @@ const Table = ({ data, editableFields = null, updateItem = null, deleteItem=null
 
   const handleSave = async (id) => {
     const sanitizedPayload = sanitizePayload(editedRow, editableFields);
+
+    editableFields.forEach((field) => {
+      if ((field.type === "number" || field.type === "decimal") && sanitizedPayload[field.name] !== null) {
+        sanitizedPayload[field.name] = Number(sanitizedPayload[field.name]);
+      }
+    });
+
     await updateItem(id, sanitizedPayload);
     setEditingID(null);
     setEditedRow({});
@@ -85,48 +96,61 @@ const Table = ({ data, editableFields = null, updateItem = null, deleteItem=null
 
   const renderEditableCell = (field, value) => {
     const config = editableFields.find((f) => f.name === field);
+    const fieldType = config?.type;
 
-    if (config?.type === "select") {
-      return (
-        <select
-          name={field}
-          value={editedRow[field] || value}
-          onChange={handleChange}
-          required
-        >
-          {config.options.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-      );
+    switch (fieldType) {
+      case "select":
+        return (
+          <select
+            name={field}
+            value={editedRow[field] || value || ""}
+            onChange={handleChange}
+            required
+          >
+            {config.options.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        );
+  
+      case "datetime-local":
+        const dateValue = editedRow[field] || value;
+        const formattedValue = dateValue ? formatDateTimeForDisplay(dateValue) : "";
+        return (
+          <input
+            name={field}
+            type="datetime-local"
+            value={formattedValue}
+            onChange={handleChange}
+            required
+          />
+        );
+  
+      case "decimal":
+        return (
+          <input
+            name={field}
+            type="number"
+            step="0.01"
+            value={editedRow[field] || value}
+            onChange={handleChange}
+            required
+          />
+        );
+  
+      default:
+        return (
+          <input
+            name={field}
+            value={editedRow[field] || value}
+            onChange={handleChange}
+            type={fieldType || "text"}
+            required
+          />
+        );
     }
-
-    if (config?.type === "datetime-local") {
-      const dateValue = editedRow[field] || value;
-      const formattedValue = dateValue ? formatDateTimeForDisplay(dateValue) : "";
-      console.log("edited val",editedRow[field]);
-      return (
-        <input
-          name={field}
-          type="datetime-local"
-          value={formattedValue}
-          onChange={handleChange}
-          required
-        />
-      );
-    }
-
-    return (
-      <input
-        name={field}
-        value={editedRow[field] || value}
-        onChange={handleChange}
-        type={config?.type || "text"}
-        required
-      />
-    );
   };
 
   return (

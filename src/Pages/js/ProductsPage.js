@@ -4,7 +4,7 @@ import ProductVariationsSection from "./ProductVariationsSection";
 
 export default function ProductsPage() {
   const [activeTab, setActiveTab] = useState("products");
-  //TODO: make the select like with products
+
   return (
     <div>
       <h1>Products Management</h1>
