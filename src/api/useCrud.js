@@ -9,7 +9,7 @@ const useCrud = (entity) => {
   const [loading, setLoading] = useState(false);
 
   const createItem = async (payload) => {
-    window.alert("trying to send data: " + JSON.stringify(payload));
+    // window.alert("trying to send data: " + JSON.stringify(payload));
     const response = await submitData(entity, payload);
     if (!response || response.status >= 400) {
         window.alert(JSON.stringify(response));
@@ -47,7 +47,6 @@ const useCrud = (entity) => {
         window.alert(JSON.stringify(response));
         return;
       }
-      console.log(`${entity} deleted successfully:`, response.id);
       setData((prevData) => prevData.filter((user) => user.id !== id));
       
     }
@@ -60,7 +59,6 @@ const useCrud = (entity) => {
         window.alert(JSON.stringify(response));
         return;
     }
-    console.log(`${entity} updated successfully:`, response.id);
     setData((prev) => prev.map((item) => (item.id === id ? response : item)));
     return response;
   };

@@ -9,6 +9,7 @@ export default function OrderItemsSection({order}) {
     const [productIDs, setProductIDs] = useState([]);
     const [productVariationIDs, setProductVariationIDs] = useState([]);
     const [discountIDs, setDiscountIDs] = useState([]);
+
     const orderItemFields = [
         { label: "Product ID", name: "productId", type: "select", options: productIDs, required: false },
         { label: "Product Variation ID", name: "productVariationId", type: "select", options: productVariationIDs, required: false },
@@ -27,14 +28,16 @@ export default function OrderItemsSection({order}) {
 
   const {
     data: orderItemData,
+    setData,
     loading: orderItemLoading,
-    fetchItems: fetchOrderItems,
     createItem: createOrderItem,
     deleteItem: deleteOrderItem,
     updateItem: updateOrderItem,
   } = useCrud(`orders/${order.id}/items`);
 
   useEffect(() => {
+    setData(order.orderItems);
+
     const fetchAllEntityIDs = async (entityName, setFunc) => {
         try {
             const entity = await fetchDataFromApi(entityName);
@@ -56,7 +59,7 @@ export default function OrderItemsSection({order}) {
       <h2>Order Items for Order ID: {order.id}</h2>
       <section>
         <Table
-            data={order.orderItems}
+            data={orderItemData}
             editableFields={orderItemEditableFields}
             updateItem={updateOrderItem}
             deleteItem={deleteOrderItem}

@@ -6,8 +6,8 @@ const deleteData = async (apiName, id) => {
   const endpoint = `${BACKEND_LINK}/${apiName}/${id}`;
 
   try {
-    const token = sessionStorage.getItem("authToken");
-    const businessId = sessionStorage.getItem("BusinessId");
+    const token = localStorage.getItem("authToken");
+    const businessId = localStorage.getItem("BusinessId");
 
     const res = await fetch(endpoint, {
       method: "DELETE",
@@ -22,7 +22,7 @@ const deleteData = async (apiName, id) => {
       throw new Error(`Failed to delete resource with ID: ${id}`);
     }
 
-    console.log(`Deleted resource with ID: ${id}`);
+    console.log(`DELETE (${endpoint}) Resp: ${res}`);
     return { success: true, id };
   } catch (error) {
     console.error("Error deleting data: ", error);

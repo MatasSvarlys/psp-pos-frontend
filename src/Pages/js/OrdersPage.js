@@ -3,11 +3,7 @@ import useCrud from "../../api/useCrud";
 import Table from "../../Common-elements/js/Table";
 import CreateForm from "../../Common-elements/js/CreateForm";
 import OrderItemsSection from "./OrderItemsSection";
-
-const orderFields = [
-  { label: "Business Name", name: "businessName", type: "text", required: true },
-  { label: "Status", name: "status", type: "text", required: true },
-];
+import fetchDataFromApi from "../../api/fetchLogic";
 
 const orderEditableFields = [
   { name: "businessName", type: "text" },
@@ -15,6 +11,10 @@ const orderEditableFields = [
 ];
 
 export default function OrdersPage() {
+  const [discountIDs, setDiscountIDs] = useState([]);
+  const orderFields = [
+    { label: "Discount ID", name: "discountId", type: "select", options: discountIDs, required: false },
+  ];
 
   const {
     data: orderData,
@@ -29,6 +29,16 @@ export default function OrdersPage() {
 
   // Fetch orders on load
   useEffect(() => {
+    const fetchAllEntityIDs = async (entityName, setFunc) => {
+      try {
+        const entity = await fetchDataFromApi(entityName);
+        setFunc(entity.map((entity) => entity.id));
+        setFunc(prev => [...prev, ""]);
+      } catch (error) {
+        console.error("Error fetching IDs:", error);
+      }
+    };
+    fetchAllEntityIDs("discounts", setDiscountIDs);
     fetchOrders();
   }, []);
 
@@ -36,7 +46,6 @@ export default function OrdersPage() {
   const handleRowSelect = (id) => {
     const selected = orderData.find((order) => order.id  === id);
     setSelectedOrder(selected);
-    // console.log("selected order"+JSON.stringify(selected)+"\n\n"+selected.id);
   };
 
   return (

@@ -6,8 +6,8 @@ const putData = async (apiName, data, id) => {
   const endpoint = `${BACKEND_LINK}/${apiName}/${id}`;
 
   try {
-    const token = sessionStorage.getItem("authToken");
-    const businessId = sessionStorage.getItem("BusinessId");
+    const token = localStorage.getItem("authToken");
+    const businessId = localStorage.getItem("BusinessId");
     
     const res = await fetch(endpoint, {
       method: "PUT",
@@ -20,7 +20,7 @@ const putData = async (apiName, data, id) => {
     });
 
     const responseData = await res.json();
-    console.log("PUT submitted: ", responseData);
+    console.log(`PUT (${endpoint}) resp: `, JSON.stringify(responseData), "\n\nbody: ", JSON.stringify(data));
     return responseData;
   } catch (error) {
     console.error("Error submitting PUT data: ", error);
