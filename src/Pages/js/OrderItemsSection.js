@@ -54,6 +54,10 @@ export default function OrderItemsSection({order}) {
     // window.alert("got order"+order.id);
   }, []);
 
+  useEffect(() => {
+    setData(order.orderItems);
+  }, [order]);
+  
   return (
     <div>
       <h2>Order Items for Order ID: {order.id}</h2>

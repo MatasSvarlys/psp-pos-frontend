@@ -5,13 +5,12 @@ import CreateForm from "../../Common-elements/js/CreateForm";
 import OrderItemsSection from "./OrderItemsSection";
 import fetchDataFromApi from "../../api/fetchLogic";
 
-const orderEditableFields = [
-  { name: "businessName", type: "text" },
-  { name: "status", type: "text" },
-];
 
 export default function OrdersPage() {
   const [discountIDs, setDiscountIDs] = useState([]);
+  const orderEditableFields = [
+    { name: "discountId", type: "select", options: discountIDs },
+  ];
   const orderFields = [
     { label: "Discount ID", name: "discountId", type: "select", options: discountIDs, required: false },
   ];

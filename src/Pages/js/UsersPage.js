@@ -50,22 +50,9 @@ export default function UsersPage() {
     const response = await fetchItemById(id);
     setfromID(response);
   };
-  
-  const handleDummySubmit = async () => {
-    const dummyData = {
-      name: 'Dummy User',
-      email: 'dummy@example.com',
-      role: 'Employee',
-      businessId: '123e4567-e89b-12d3-a456-426614174001',
-      password: 'aaa',
-    };
-    
-    await createItem(dummyData); 
-  };
-  
+
   return (
     <>
-    <button onClick={handleDummySubmit}>Submit Dummy Data</button>
       <h1>All {ENTITY_NAME}s</h1>
       <section>
           {loading ? (<p>fetching data...</p>) : ( 
