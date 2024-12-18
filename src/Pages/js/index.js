@@ -11,3 +11,4 @@ export { default as DiscountsPage } from './DiscountsPage';
 export { default as PaymentsPage } from './PaymentsPage';
 export { default as RefundsPage } from './RefundsPage';
 export { default as ProductsPage } from './ProductsPage';
+export { default as SelectBusinessPage } from './SelectBusinessPage';

@@ -1,4 +1,4 @@
-import { OrdersPage, ReservationsPage, UsersPage, BusinessesPage, ServicesPage, TaxesPage, GiftCardsPage, DiscountsPage, PaymentsPage, RefundsPage, ProductsPage } from '../Pages/js';
+import { SelectBusinessPage, OrdersPage, ReservationsPage, UsersPage, BusinessesPage, ServicesPage, TaxesPage, GiftCardsPage, DiscountsPage, PaymentsPage, RefundsPage, ProductsPage } from '../Pages/js';
 
 export const roleRoutes = {
   SuperAdmin: [
@@ -14,6 +14,7 @@ export const roleRoutes = {
     { path: "/refunds", label: "Refunds", component: RefundsPage },
     { path: "/products", label: "Products", component: ProductsPage },
     { path: "/orders", label: "Orders", component: OrdersPage },
+    { path: "/selectBusiness", label: "Select Business", component: SelectBusinessPage },
   ],
   BusinessOwner: [
     { path: "/orders", label: "Orders", component: OrdersPage },

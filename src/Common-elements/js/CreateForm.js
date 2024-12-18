@@ -5,12 +5,14 @@ const CreateForm = ({ fields, createItem }) => {
       const date = new Date(value);
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
     };
-  
+    const businessId = localStorage.getItem("BusinessId");
     return fields.reduce((acc, field) => {
       const key = field.name;
       const value = payload[key];
   
-      switch (field.type) {
+      if (key === "businessId") {
+        acc[key] = businessId;
+      } else switch (field.type) {
         case "number":
         case "decimal":
           acc[key] = value === undefined || value === "" ? null : Number(value);
@@ -44,7 +46,9 @@ const CreateForm = ({ fields, createItem }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      {fields.map(({ label, name, type, required, options }) => (
+      {fields
+      .filter(({ name }) => name !== "businessId")
+      .map(({ label, name, type, required, options }) => (
         <label key={name}>
           {label}:
           {type === "select" ? (
